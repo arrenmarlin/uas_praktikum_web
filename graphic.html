@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafik Chart.js dari Web API</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
+        integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw=="
+        crossorigin="anonymous"></script>
+    <link rel="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"
+        integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw=="
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+</head>
+
+<body>
+
+
+    <div class="container">
+        <div class="jumbotron mt-2 p-3 p-md-5 text-white rounded bg-dark">
+            <div class="px-0">
+                <h1 class="display-4 font-bold text-center">Informasi Kesehatan
+                </h1>
+                <p class="lead my-3">
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas-untuk-menggambar-grafik"></canvas>
+    
+    <div class="container">
+        <div class="jumbotron mt-2 p-3 p-md-5 text-white rounded bg-dark">
+            <div class="px-0">
+                <h1 class="display-4 font-italic">Jelang Akhir Tahun 2019, Jumlah Dokter di Indonesia Mencapai 160 Ribu
+                </h1>
+                <p class="lead my-3">
+                    Jakarta - Menjelang akhir tahun 2019 ini, jumlah dokter yang ada di Indonesia ternyata mengalami peningkatan. Tidak hanya dokter umum, namun para dokter spesialis juga memiliki pertambahan jumlah.
+                    <br>
+                    Ketua Ikatan Dokter Indonesia (IDI), dr Daeng M Fakih mengatakan bahwa jumlah dokter di Indonesia bertambah sekitar 10-12 ribu per tahunnya. Namun, berdasarkan data dokter terakhir yang terdaftar di IDI mencapai angka 160 ribu.
+                    <br>
+                    "Total jumlah data terakhir dokter yang terdaftar di IDI dan sudah kita cocokkan dengan dewan dokter Indonesia itu ada 168 ribu. Tapi, itu data dinamis ya. 138 ribu dokter umum, selebihnya sekitar 30 ribu dokter spesialis," jelasnya di kawasan Senen, Jakarta Pusat, Selasa (10/12/19).
+                    <br>
+                    Tetapi dengan jumlah terakhir itu masih ada daerah yang mengalami kekurangan tenaga medis atau dokter. Menurut dr Daeng, wilayah Timur lah yang masih sangat kekurangan tenaga medis.
+                    <br>
+                    Dengan jumlah dokter dan berbagai sarana pelayanan kesehatan, baik langsung maupun online diharapkan bisa membantu kekurangan tenaga medis ini.
+                    <br>
+                    "Dari kami akan terus berusaha memenuhi kekurangan tenaga medis atau dokter ini di daerah Timur Indonesia. IDI juga akan membantu untuk menjamin dokter yang bertugas itu memiliki verifikasi yang memadai, baik, dan bertanggung jawab atas keselamatan pasiennya," ujarnya
+                </p>
+                <a href="https://health.detik.com/berita-detikhealth/d-4817190/jelang-akhir-tahun-2019-jumlah-dokter-di-indonesia-mencapai-160-ribu">Sumber artikel</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function buatDataUntukGrafik(dataPenduduk, dataDokter) {
+
+            console.log(dataPenduduk.nilai_per_wilayah);
+
+            //Main character, function map() dari array
+            var label = dataPenduduk.nilai_per_wilayah.map(function (satuanData) {
+                return satuanData.wilayah;
+            });
+
+            var jumlahDokter = dataDokter.nilai_per_wilayah.map(function (satuanData) {
+                return satuanData.nilai_per_tahun[0].nilai;
+            });
+
+            var jumlahPenduduk = dataPenduduk.nilai_per_wilayah.map(function (satuanData) {
+                return satuanData.nilai_per_tahun[0].nilai;
+            });
+
+            var jumlahPendudukPerDokter = jumlahPenduduk.map(function (satuanData, urutan) {
+                return Math.round(jumlahPenduduk[urutan] / jumlahDokter[urutan]);
+            });
+
+            var garisIdealWHOPendudukPerDokter = jumlahPenduduk.map(function () {
+                return 1000;
+            });
+
+            var garisIdealBPJSPendudukPerDokter = jumlahPenduduk.map(function () {
+                return 5000;
+            });
+
+            var dataUntukGrafik = {
+                labels: label,
+                datasets: [{
+                        label: "Jumlah Ideal Penduduk per 1 Dokter - WHO",
+                        borderColor: "rgb(0,105,50)",
+                        borderWidth: 1,
+                        yAxisID: "sumbu-y-kanan",
+                        data: garisIdealWHOPendudukPerDokter,
+                        type: 'line'
+                    },
+                    {
+                        label: "Jumlah Ideal Penduduk per 1 Dokter - BPJS",
+                        borderColor: "rgb(50,15,00)",
+                        borderWidth: 1,
+                        yAxisID: "sumbu-y-kanan",
+                        data: garisIdealBPJSPendudukPerDokter,
+                        type: 'line'
+                    },
+                    {
+                        label: "Jumlah Penduduk",
+                        backgroundColor: "rgb(0,255,155)",
+                        yAxisID: "sumbu-y-kiri",
+                        data: jumlahPenduduk
+                    },
+                    {
+                        label: "Jumlah Penduduk / 1 dokter",
+                        backgroundColor: "rgb(255,50,0)",
+                        yAxisID: "sumbu-y-kanan",
+                        data: jumlahPendudukPerDokter
+                    },
+                ]
+            };
+            return dataUntukGrafik;
+        };
+
+        function buatGrafik(dataPenduduk, dataDokter) {
+            //console.log(dataPenduduk);
+            //console.log(dataDokter);
+
+            var elemenCanvas = document.getElementById("canvas-untuk-menggambar-grafik");
+            var penggambarCanvas = elemenCanvas.getContext("2d");
+
+            //// label ["Januari","Februari"], nilai data [300,400]
+            var judulGrafik = "Grafik Rasio Jumlah Penduduk per 1 Dokter";
+            var dataUntukGrafik = buatDataUntukGrafik(dataPenduduk, dataDokter);
+
+            var konfigurasiChartJs = {
+                type: 'bar',
+                data: dataUntukGrafik,
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: judulGrafik
+                    },
+                    scales: {
+                        yAxes: [{
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: {
+                                min: 0,
+                            },
+                            id: 'sumbu-y-kiri'
+                        }, {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: {
+                                min: 0,
+                            },
+                            id: 'sumbu-y-kanan'
+                        }]
+                    }
+                }
+            };
+
+            var grafik = new Chart(penggambarCanvas, konfigurasiChartJs);
+
+        };
+
+        window.onload = function () {
+            //Data untuk grafik
+            var urlDataPenduduk =
+                "https://mechaid.github.io/course-materials/praktikum-web/2020-2021/contoh/json-api-ke-chart/penduduk-jawa-barat-2019.json";
+            var urlDataDokter =
+                "https://mechaid.github.io/course-materials/praktikum-web/2020-2021/contoh/json-api-ke-chart/dokter-jawa-barat-2019.json";
+
+            var dataPenduduk, dataDokter;
+
+            //XMLHTTPRequest
+
+            //Penduduk
+            var requestDataPenduduk = new XMLHttpRequest();
+            requestDataPenduduk.open("GET", urlDataPenduduk, true);
+            requestDataPenduduk.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    dataPenduduk = JSON.parse(this.responseText);
+
+                    if (dataDokter !== undefined) {
+                        buatGrafik(dataPenduduk, dataDokter);
+                    }
+                }
+            };
+            requestDataPenduduk.send('');
+
+            //Dokter
+            var requestDataDokter = new XMLHttpRequest();
+            requestDataDokter.open("GET", urlDataDokter, true);
+            requestDataDokter.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    dataDokter = JSON.parse(this.responseText);
+
+                    if (dataPenduduk !== undefined) {
+                        buatGrafik(dataPenduduk, dataDokter);
+                    }
+                }
+            };
+            requestDataDokter.send('');
+
+        };
+    </script>
+</body>
+
+</html>
